@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Road Pothole Detection</title>
+
+  <!-- Fonts & Bootstrap -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #0FA4AF, #80d0c7);
+      background-size: 300% 300%;
+      animation: gradientShift 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      padding: 60px 40px;
+      max-width: 520px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+      color: #1b1b1b;
+    }
+
+    .form-control {
+      padding: 14px;
+      font-size: 1rem;
+      border-radius: 14px;
+      border: 1px solid #ccc;
+      margin-bottom: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #0FA4AF;
+      box-shadow: 0 0 0 0.25rem rgba(15, 164, 175, 0.25);
+    }
+
+    .btn-detect {
+      background: linear-gradient(to right, #0FA4AF, #1b4f72);
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .btn-detect:hover {
+      background: linear-gradient(to right, #1b4f72, #0FA4AF);
+      transform: scale(1.03);
+    }
+
+    input[type="file"]::file-selector-button {
+      background-color: #0FA4AF;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      background-color: #0d8b95;
+    }
+
+    .alert {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-card">
+    <h1>Road Pothole Detection</h1>
+
+    <!-- Flask flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form id="uploadForm" action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data" novalidate>
+      <input class="form-control" type="file" name="image" accept="image/*" id="image" required>
+      <button class="btn btn-detect mt-2" type="submit" id="submitBtn">Detect Pothole</button>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="uploadModalLabel">⚠️ Warning</h5>
+        </div>
+        <div class="modal-body">
+          <strong>Image not uploaded!</strong> Please upload an image before clicking "Detect Pothole".
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Check if image is uploaded -->
+  <script>
+    document.getElementById('submitBtn').addEventListener('click', function (e) {
+      const fileInput = document.getElementById('image');
+      if (!fileInput.value) {
+        e.preventDefault();
+        const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+        modal.show();
+      }
+    });
+  </script>
+
+</body>
+</html>
